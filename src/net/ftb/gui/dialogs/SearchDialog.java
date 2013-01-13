@@ -26,7 +26,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.ftb.gui.LaunchFrame;
-import net.ftb.gui.panes.MapsPane;
 import net.ftb.gui.panes.ModpacksPane;
 import net.ftb.gui.panes.TexturepackPane;
 
@@ -54,31 +53,6 @@ public class SearchDialog extends JDialog {
 			public void actionPerformed(ActionEvent event) {
 				lastPackSearch = searchBar.getText();
 				instance.sortPacks();
-				setVisible(false);
-			}
-		});
-	}
-
-	public SearchDialog(final MapsPane instance) {
-		super(LaunchFrame.getInstance(), true);
-		setUpGui();
-		searchBar.setText((lastMapSearch == null) ? "" : lastMapSearch);
-		searchBar.getDocument().addDocumentListener(new DocumentListener() {
-			@Override public void removeUpdate(DocumentEvent arg0) {
-				lastMapSearch = searchBar.getText();
-				instance.sortMaps();
-			}
-			@Override public void insertUpdate(DocumentEvent arg0) {
-				lastMapSearch = searchBar.getText();
-				instance.sortMaps();
-			}
-			@Override public void changedUpdate(DocumentEvent arg0) { }
-		});
-		searchBar.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				lastPackSearch = searchBar.getText();
-				instance.sortMaps();
 				setVisible(false);
 			}
 		});

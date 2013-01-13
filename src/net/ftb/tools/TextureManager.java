@@ -46,7 +46,6 @@ import net.ftb.data.TexturePack;
 import net.ftb.log.Logger;
 import net.ftb.util.DownloadUtils;
 import net.ftb.util.ErrorUtils;
-import net.ftb.util.TrackerUtils;
 
 public class TextureManager extends JDialog {
 	private static TexturePack updateTexture;
@@ -143,7 +142,6 @@ public class TextureManager extends JDialog {
 				}
 				out.flush();
 				out.close();
-				TrackerUtils.sendPageView(dir + " Install", dir + " / " + compDir + " / " + packVer);
 				return true;
 			}
 			return false;
