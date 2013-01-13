@@ -68,8 +68,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	private static JLabel typeLbl;
 	private JButton filter, editModPack;
 
-	private static JButton server;
-
 	private JButton privatePack;
 	private static JComboBox version;
 	private static int selectedPack = 0;
@@ -194,32 +192,8 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		infoScroll.setOpaque(false);
 		add(infoScroll);
 
-		server = new JButton("Download Server");
-		server.setBounds(420, 5, 130, 25);
-
-		server.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				if(!ModPack.getSelectedPack().getServerUrl().isEmpty()) {
-					if(LaunchFrame.modPacksPane.packPanels.size() > 0 && getSelectedModIndex() >= 0) {
-						try {
-							if(!ModPack.getSelectedPack().getServerUrl().equals("") && ModPack.getSelectedPack().getServerUrl() != null) {
-								String version = (Settings.getSettings().getPackVer().equalsIgnoreCase("recommended version") || Settings.getSettings().getPackVer().equalsIgnoreCase("newest version")) ? ModPack.getSelectedPack().getVersion().replace(".", "_") : Settings.getSettings().getPackVer().replace(".", "_");
-								if(ModPack.getSelectedPack().isPrivatePack()) {
-									OSUtils.browse(DownloadUtils.getCreeperhostLink("privatepacks%5E" + ModPack.getSelectedPack().getDir() + "%5E" + version + "%5E" + ModPack.getSelectedPack().getServerUrl()));
-								} else {
-									OSUtils.browse(DownloadUtils.getCreeperhostLink("modpacks%5E" + ModPack.getSelectedPack().getDir() + "%5E" + version + "%5E" + ModPack.getSelectedPack().getServerUrl()));
-								}
-							}
-						} catch (NoSuchAlgorithmException e) { }
-					}
-				}
-			}
-		});
-		add(server);
-
 		version = new JComboBox(new String[]{});
-		version.setBounds(560, 5, 130, 25);
+		version.setBounds(420, 5, 130, 25);
 		version.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -231,7 +205,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(version);
 
 		privatePack = new JButton("Private Packs");
-		privatePack.setBounds(700, 5, 120, 25);
+		privatePack.setBounds(560, 5, 120, 25);
 		privatePack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -261,7 +235,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		logo.setBounds(6, 6, 42, 42);
 		logo.setVisible(true);
 
-		JTextArea filler = new JTextArea(pack.getName() + " (v" + pack.getVersion() + ") Minecraft Version " + pack.getMcVersion() + "\n" + "By " + pack.getAuthor());
+		JTextArea filler = new JTextArea(pack.getName() + " (v" + pack.getVersion() + ") Minecraft Version " + pack.getMcVersion() + "\n" + "Compiled By " + pack.getAuthor());
 		filler.setBorder(null);
 		filler.setEditable(false);
 		filler.setForeground(Color.white);
@@ -343,12 +317,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 					File tempDir = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + ModPack.getPack(getIndex()).getDir());
 					packInfo.setText("<html><img src=' file:\\"+ tempDir.getPath() + File.separator + ModPack.getPack(getIndex()).getImageName() +"' width=400 height=200></img> <br>" + ModPack.getPack(getIndex()).getInfo() + mods);
 					packInfo.setCaretPosition(0);
-
-					if(ModPack.getSelectedPack().getServerUrl().equals("") || ModPack.getSelectedPack().getServerUrl() == null) {
-						server.setEnabled(false);
-					} else {
-						server.setEnabled(true);
-					}
+					
 					String tempVer = Settings.getSettings().getPackVer();
 					version.removeAllItems();
 					version.addItem("Recommended");

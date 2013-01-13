@@ -216,14 +216,6 @@ public class Settings extends Properties {
 		return null;
 	}
 
-	public void setNewsDate() {
-		setProperty("newsDate", Long.toString(Calendar.getInstance().getTime().getTime()));
-	}
-
-	public String getNewsDate() {
-		return getProperty("newsDate", Long.toString(new Date(0).getTime()));
-	}
-
 	public void setLastExtendedState(int lastExtendedState) {
 		setProperty("lastExtendedState", String.valueOf(lastExtendedState));
 	}
@@ -237,15 +229,7 @@ public class Settings extends Properties {
 	}
 
 	public boolean getKeepLauncherOpen() {
-		return Boolean.parseBoolean(getProperty("keepLauncherOpen", "false"));
-	}
-
-	public void setSnooper(boolean state) {
-		setProperty("snooperDisable", String.valueOf(state));
-	}
-
-	public boolean getSnooper() {
-		return Boolean.parseBoolean(getProperty("snooperDisable", "false"));
+		return Boolean.parseBoolean(getProperty("keepLauncherOpen", "true"));
 	}
 
 	public String getAdditionalJavaOptions() {

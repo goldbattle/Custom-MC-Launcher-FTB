@@ -40,7 +40,7 @@ import net.ftb.util.DownloadUtils;
 public class AdvancedOptionsDialog extends JDialog {
 	private JButton exitBtn;
 	private JTextField minecraftX, minecraftY, xPosField, yPosField, additionalJavaOptions;
-	private JCheckBox autoMaxCheck, snooper;
+	private JCheckBox autoMaxCheck;
 	private static JComboBox downloadServers;
 	private final Settings settings = Settings.getSettings();
 
@@ -125,12 +125,6 @@ public class AdvancedOptionsDialog extends JDialog {
 		autoMaxCheck.addFocusListener(settingsChangeListener);
 		add(autoMaxCheck);
 
-		snooper = new JCheckBox("Disable Google Analytic Tracking");
-		snooper.setBounds(190, 150, 300, 25);
-		snooper.setSelected(settings.getSnooper());
-		snooper.addFocusListener(settingsChangeListener);
-		add(snooper);
-
 		exitBtn = new JButton("EXIT");
 		exitBtn.setBounds(150, 190, 140, 28);
 		exitBtn.addActionListener(new ActionListener() {
@@ -173,7 +167,6 @@ public class AdvancedOptionsDialog extends JDialog {
 		settings.setLastExtendedState(autoMaxCheck.isSelected() ? (lastExtendedState | JFrame.MAXIMIZED_BOTH) : (lastExtendedState & ~JFrame.MAXIMIZED_BOTH));
 		settings.setLastPosition(new Point(Integer.parseInt(xPosField.getText()), Integer.parseInt(yPosField.getText())));
 		settings.setAdditionalJavaOptions(additionalJavaOptions.getText());
-		settings.setSnooper(snooper.isSelected());
 		settings.save();
 	}
 
