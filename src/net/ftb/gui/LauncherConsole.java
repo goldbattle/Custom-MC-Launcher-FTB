@@ -151,24 +151,6 @@ public class LauncherConsole extends JFrame implements ILogListener {
 		});
 		panel.add(logSourceComboBox);
 
-		JButton ircButton = new JButton("Need support? Click me!");
-		ircButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (Desktop.isDesktopSupported()) {
-					Desktop desktop = Desktop.getDesktop();
-					try {
-						desktop.browse(new URI("http://support.feed-the-beast.com/?qa=hot"));
-					} catch (Exception exc) {
-						Logger.logError("Could not open url: " + exc.getMessage());
-					}
-				} else {
-					Logger.logWarn("Could not open url, not supported");
-				}
-			}
-		});
-		panel.add(ircButton);
-
 		displayArea = new JEditorPane("text/html", "");
 		displayArea.setEditable(false);
 		kit = new HTMLEditorKit();

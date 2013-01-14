@@ -48,7 +48,7 @@ public class DownloadUtils extends Thread {
 	 * @return - the direct link
 	 * @throws NoSuchAlgorithmException - see md5
 	 */
-	public static String getCreeperhostLink(String file) throws NoSuchAlgorithmException {
+	/*public static String getCreeperhostLink(String file) throws NoSuchAlgorithmException {
 		if(currentmd5.isEmpty()) {
 			currentmd5 = md5("mcepoch1" + getTime());
 		}
@@ -67,13 +67,13 @@ public class DownloadUtils extends Thread {
 		connection.disconnect();
 		Logger.logInfo(resolved);
 		return resolved; 
-	}
+	}*/
 
 	/**
 	 * @param file - the name of the file, as saved to the repo (including extension)
 	 * @return - the direct link
 	 */
-	public static String getStaticCreeperhostLink(String file) {
+	/*public static String getStaticCreeperhostLink(String file) {
 		String resolved = (downloadServers.containsKey(Settings.getSettings().getDownloadServer())) ? "http://" + downloadServers.get(Settings.getSettings().getDownloadServer()) : "http://www.creeperrepo.net";
 		resolved += "/static/FTB2/" + file;
 		HttpURLConnection connection = null;
@@ -92,20 +92,20 @@ public class DownloadUtils extends Thread {
 		} catch (IOException e) { }
 		connection.disconnect();
 		return resolved; 
-	}
+	}*/
 
 	/**
 	 * @param file - file on the repo in static
 	 * @return boolean representing if the file exists 
 	 */
-	public static boolean staticFileExists(String file) {
+	/*public static boolean staticFileExists(String file) {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(getStaticCreeperhostLink(file)).openStream()));
 			return !reader.readLine().toLowerCase().contains("not found");
 		} catch (Exception e) {
 			return false;
 		}
-	}
+	}*/
 
 	/**
 	 * @param file - file on the repo

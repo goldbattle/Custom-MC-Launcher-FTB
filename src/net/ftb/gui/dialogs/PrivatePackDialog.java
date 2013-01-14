@@ -61,7 +61,8 @@ public class PrivatePackDialog extends JDialog {
 		btnAdd.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(DownloadUtils.staticFileExists(textField.getText() + ".xml") && !textField.getText().isEmpty()) {
+				//if(DownloadUtils.staticFileExists(textField.getText() + ".xml") && !textField.getText().isEmpty()) {
+				if(!textField.getText().isEmpty()) {
 					Logger.logInfo("Adding: " + textField.getText());
 					ModPack.loadXml(textField.getText() + ".xml");
 					Settings.getSettings().addPrivatePack(textField.getText());

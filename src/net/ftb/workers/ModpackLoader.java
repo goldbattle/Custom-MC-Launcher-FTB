@@ -51,7 +51,7 @@ public class ModpackLoader extends Thread {
 			File modPackFile = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + xmlFile);
 			try {
 				modPackFile.getParentFile().mkdirs();
-				DownloadUtils.downloadToFile(new URL(DownloadUtils.getStaticCreeperhostLink(xmlFile)), modPackFile);
+				DownloadUtils.downloadToFile(new URL("http://" + "files.soartex.net" + "/ftb/" +xmlFile), modPackFile);
 			} catch (IOException e) {
 				Logger.logWarn("Failed to load modpacks, loading from backup", e);
 			}
@@ -64,7 +64,7 @@ public class ModpackLoader extends Thread {
 			}
 			if(modPackStream == null) {
 				try {
-					modPackStream = new URL(DownloadUtils.getStaticCreeperhostLink(xmlFile)).openStream();
+					modPackStream = new URL("http://" + "files.soartex.net" + "/ftb/" + xmlFile).openStream();
 				} catch (IOException e) {
 					Logger.logError("Completely unable to download the modpack file - check your connection", e);
 				}
@@ -86,11 +86,17 @@ public class ModpackLoader extends Thread {
 					Node modPackNode = modPacks.item(i);
 					NamedNodeMap modPackAttr = modPackNode.getAttributes();
 					try {
-						ModPack.addPack(new ModPack(modPackAttr.getNamedItem("name").getTextContent(), modPackAttr.getNamedItem("author").getTextContent(),
-								modPackAttr.getNamedItem("version").getTextContent(), modPackAttr.getNamedItem("logo").getTextContent(),
-								modPackAttr.getNamedItem("url").getTextContent(), modPackAttr.getNamedItem("image").getTextContent(),
-								modPackAttr.getNamedItem("dir").getTextContent(), modPackAttr.getNamedItem("mcVersion").getTextContent(), 
-								modPackAttr.getNamedItem("serverPack").getTextContent(), modPackAttr.getNamedItem("description").getTextContent(),
+						ModPack.addPack(new ModPack(modPackAttr.getNamedItem("name").getTextContent(), 
+								modPackAttr.getNamedItem("author").getTextContent(),
+								modPackAttr.getNamedItem("version").getTextContent(), 
+								modPackAttr.getNamedItem("logo") != null ? modPackAttr.getNamedItem("logo").getTextContent() : "",
+								modPackAttr.getNamedItem("logo_url") != null ? modPackAttr.getNamedItem("logo_url").getTextContent() : "",
+								modPackAttr.getNamedItem("url").getTextContent(), 
+								modPackAttr.getNamedItem("image") != null ? modPackAttr.getNamedItem("image").getTextContent() : "",
+								modPackAttr.getNamedItem("image_url") != null ? modPackAttr.getNamedItem("image_url").getTextContent() : "",
+								modPackAttr.getNamedItem("dir").getTextContent(),
+								modPackAttr.getNamedItem("mcVersion").getTextContent(), 
+								modPackAttr.getNamedItem("description") != null ? modPackAttr.getNamedItem("description").getTextContent() : "",
 								modPackAttr.getNamedItem("mods") != null ? modPackAttr.getNamedItem("mods").getTextContent() : "", 
 								modPackAttr.getNamedItem("oldVersions") != null ? modPackAttr.getNamedItem("oldVersions").getTextContent() : "",
 								modPackAttr.getNamedItem("animation") != null ? modPackAttr.getNamedItem("animation").getTextContent() : "", counter, privatePack, xmlFile));

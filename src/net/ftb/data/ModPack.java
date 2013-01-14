@@ -40,7 +40,7 @@ import net.ftb.util.OSUtils;
 import net.ftb.workers.ModpackLoader;
 
 public class ModPack {	
-	private String name, author, version, url, dir, mcVersion, serverUrl, logoName, imageName, info, animation, sep = File.separator, xml;
+	private String name, author, version, url, dir, mcVersion, logoName, imageName, info, animation, sep = File.separator, xml;
 	private String[] mods, oldVersions;
 	private Image logo, image;
 	private int index;
@@ -150,8 +150,23 @@ public class ModPack {
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public ModPack(String name, String author, String version, String logo, String url, String image, String dir, String mcVersion, String serverUrl, String info, String mods, 
-			String oldVersions, String animation, int idx, boolean privatePack, String xml) throws IOException, NoSuchAlgorithmException {
+	public ModPack(String name, 
+			String author, 
+			String version, 
+			String logo, 
+			String logourl, 
+			String url, 
+			String image, 
+			String imageurl,
+			String dir, 
+			String mcVersion, 
+			String info, 
+			String mods, 
+			String oldVersions, 
+			String animation, 
+			int idx, 
+			boolean privatePack, 
+			String xml) throws IOException, NoSuchAlgorithmException {
 		index = idx;
 		this.name = name;
 		this.author = author;
@@ -159,7 +174,6 @@ public class ModPack {
 		this.dir = dir;
 		this.mcVersion = mcVersion;
 		this.url = url;
-		this.serverUrl = serverUrl;
 		this.privatePack = privatePack;
 		this.xml = xml;
 		if(!animation.equalsIgnoreCase("")) {
@@ -185,12 +199,12 @@ public class ModPack {
 		File verFile = new File(tempDir, "version");
 		URL url_;
 		if(!upToDate(verFile)) {
-			url_ = new URL(DownloadUtils.getStaticCreeperhostLink(logo));
+			url_ = new URL(logourl);
 			this.logo = Toolkit.getDefaultToolkit().createImage(url_);
 			BufferedImage tempImg = ImageIO.read(url_);
 			ImageIO.write(tempImg, "png", new File(tempDir, logo));
 			tempImg.flush();
-			url_ =  new URL(DownloadUtils.getStaticCreeperhostLink(image));
+			url_ =  new URL(imageurl);
 			this.image = Toolkit.getDefaultToolkit().createImage(url_);
 			tempImg = ImageIO.read(url_);
 			ImageIO.write(tempImg, "png", new File(tempDir, image));
@@ -199,7 +213,7 @@ public class ModPack {
 			if(new File(tempDir, logo).exists()) {
 				this.logo = Toolkit.getDefaultToolkit().createImage(tempDir.getPath() + sep + logo);
 			} else {
-				url_ = new URL(DownloadUtils.getStaticCreeperhostLink(logo));
+				url_ = new URL(logourl);
 				this.logo = Toolkit.getDefaultToolkit().createImage(url_);
 				BufferedImage tempImg = ImageIO.read(url_);
 				ImageIO.write(tempImg, "png", new File(tempDir, logo));
@@ -208,7 +222,7 @@ public class ModPack {
 			if(new File(tempDir, image).exists()) {
 				this.image = Toolkit.getDefaultToolkit().createImage(tempDir.getPath() + sep + image);
 			} else {
-				url_ = new URL(DownloadUtils.getStaticCreeperhostLink(image));
+				url_ = new URL(imageurl);
 				this.image = Toolkit.getDefaultToolkit().createImage(url_);
 				BufferedImage tempImg = ImageIO.read(url_);
 				ImageIO.write(tempImg, "png", new File(tempDir, image));
@@ -232,7 +246,7 @@ public class ModPack {
 			}
 			BufferedReader in = new BufferedReader(new FileReader(verFile));
 			String line;
-			if((line = in.readLine()) == null || Integer.parseInt(version.replace(".", "")) > Integer.parseInt(line.replace(".", ""))) {
+			if((line = in.readLine()) == null || Integer.parseInt(version.replace(".", "")) != Integer.parseInt(line.replace(".", ""))) {
 				BufferedWriter out = new BufferedWriter(new FileWriter(verFile));
 				out.write(version);
 				out.flush();
@@ -332,14 +346,6 @@ public class ModPack {
 	 */
 	public String[] getMods() {
 		return mods;
-	}
-
-	/**
-	 * Used to get the name of the server file for the modpack
-	 * @return - string representing server file name
-	 */
-	public String getServerUrl() {
-		return serverUrl;
 	}
 
 	/**

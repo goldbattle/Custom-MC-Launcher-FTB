@@ -235,7 +235,6 @@ public class LaunchFrame extends JFrame {
 		//Footer
 		
 		//ftb logo
-		footerLogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		footerLogo.setBounds(20, 20, 42, 42);
 
 		//profile stuff

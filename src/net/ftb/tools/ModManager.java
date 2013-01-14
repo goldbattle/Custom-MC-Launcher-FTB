@@ -107,20 +107,31 @@ public class ModManager extends JDialog {
 		}
 
 		protected boolean downloadModPack(String modPackName, String dir) throws IOException, NoSuchAlgorithmException {
-			Logger.logInfo("Downloading Mod Pack");
+			Logger.logInfo("Downloading mod pack.");			
 			String dynamicLoc = OSUtils.getDynamicStorageLocation();
 			String installPath = Settings.getSettings().getInstallPath();
 			ModPack pack = ModPack.getSelectedPack();
-			String baseLink = (pack.isPrivatePack() ? "privatepacks%5E" + dir + "%5E" + curVersion + "%5E" : "modpacks%5E" + dir + "%5E" + curVersion + "%5E");
+			modPackName=pack.getName();
+
 			File baseDynamic = new File(dynamicLoc, "ModPacks" + sep + dir + sep);
 			baseDynamic.mkdirs();
-			new File(baseDynamic, modPackName).createNewFile();
-			downloadUrl(baseDynamic.getPath() + sep + modPackName, DownloadUtils.getCreeperhostLink(baseLink + modPackName));
-			String animation = pack.getAnimation();
-			if(!animation.equalsIgnoreCase("empty")) {
-				downloadUrl(baseDynamic.getPath() + sep + animation, DownloadUtils.getCreeperhostLink(baseLink + animation));
-			}
-			if(DownloadUtils.isValid(new File(baseDynamic, modPackName), baseLink + modPackName)) {
+
+			try{
+				new File(baseDynamic, modPackName).createNewFile();
+
+				//download file
+				downloadUrl(baseDynamic.getPath() + sep + modPackName, pack.getUrl());			
+
+				try{
+					//startup animation download
+					String animation = pack.getAnimation();
+					if(!animation.equalsIgnoreCase("empty")) {
+						downloadUrl(baseDynamic.getPath() + sep + animation.substring(animation.lastIndexOf("/")), animation);
+					}
+				}catch(Exception e1){
+					e1.printStackTrace();
+				}
+				//extract after download
 				FileUtils.extractZipTo(baseDynamic.getPath() + sep + modPackName, baseDynamic.getPath());
 				clearModsFolder(pack);
 				FileUtils.delete(new File(installPath, dir + "/minecraft/coremods"));
@@ -131,8 +142,10 @@ public class ModManager extends JDialog {
 				out.flush();
 				out.close();
 				return true;
-			} else {
+			} catch(Exception e){
+				e.printStackTrace();
 				ErrorUtils.tossError("Error downloading modpack!!!");
+				Logger.logError("Error in Download", e);
 				return false;
 			}
 		}
@@ -248,9 +261,11 @@ public class ModManager extends JDialog {
 
 	public static void clearModsFolder(ModPack pack) throws IOException {
 		File modsFolder = new File(Settings.getSettings().getInstallPath(), pack.getDir() + "/minecraft/mods");
-		for(String file : modsFolder.list()) {
-			if(file.toLowerCase().endsWith(".zip") || file.toLowerCase().endsWith(".jar") || file.toLowerCase().endsWith(".disabled") || file.toLowerCase().endsWith(".litemod")) {
-				FileUtils.delete(new File(modsFolder, file));
+		if(modsFolder.exists()){
+			for(String file : modsFolder.list()) {
+				if(file.toLowerCase().endsWith(".zip") || file.toLowerCase().endsWith(".jar") || file.toLowerCase().endsWith(".disabled") || file.toLowerCase().endsWith(".litemod")) {
+					FileUtils.delete(new File(modsFolder, file));
+				}
 			}
 		}
 	}
