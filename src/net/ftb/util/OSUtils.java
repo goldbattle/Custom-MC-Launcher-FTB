@@ -68,11 +68,11 @@ public class OSUtils {
 	public static String getDynamicStorageLocation() {
 		switch(getCurrentOS()) {
 		case WINDOWS:
-			return System.getenv("APPDATA") + "/ftblauncher/";
+			return System.getenv("APPDATA") + "/.soartexlauncher/";
 		case MACOSX:
-			return cachedUserHome + "/Library/Application Support/ftblauncher/";
+			return cachedUserHome + "/Library/Application Support/.soartexlauncher/";
 		case UNIX:
-			return cachedUserHome + "/.ftblauncher/";
+			return cachedUserHome + "/.soartexlauncher/";
 		default:
 			return getDefInstallPath() + "/temp/";
 		}
