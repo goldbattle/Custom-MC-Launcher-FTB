@@ -27,7 +27,9 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CancellationException;
@@ -47,11 +49,15 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import net.ftb.data.LauncherStyle;
 import net.ftb.data.LoginResponse;
 import net.ftb.data.ModPack;
 import net.ftb.data.Settings;
-import net.ftb.data.TexturePack;
 import net.ftb.data.UserManager;
 import net.ftb.gui.dialogs.InstallDirectoryDialog;
 import net.ftb.gui.dialogs.LauncherUpdateDialog;
@@ -62,7 +68,6 @@ import net.ftb.gui.dialogs.ProfileEditorDialog;
 import net.ftb.gui.panes.ILauncherPane;
 import net.ftb.gui.panes.ModpacksPane;
 import net.ftb.gui.panes.OptionsPane;
-import net.ftb.gui.panes.TexturepackPane;
 import net.ftb.locale.I18N;
 import net.ftb.locale.I18N.Locale;
 import net.ftb.log.LogEntry;
@@ -73,8 +78,8 @@ import net.ftb.mclauncher.MinecraftLauncher;
 import net.ftb.tools.MinecraftVersionDetector;
 import net.ftb.tools.ModManager;
 import net.ftb.tools.ProcessMonitor;
-import net.ftb.tools.TextureManager;
 import net.ftb.updater.UpdateChecker;
+import net.ftb.util.AppUtils;
 import net.ftb.util.DownloadUtils;
 import net.ftb.util.ErrorUtils;
 import net.ftb.util.FileUtils;
@@ -90,10 +95,10 @@ public class LaunchFrame extends JFrame {
 	private JPanel footer = new JPanel();
 	private JLabel footerLogo = new JLabel(new ImageIcon(this.getClass().getResource("/image/logo_ftb.png")));
 	private JLabel tpInstallLocLbl = new JLabel();
-	private JButton launch = new JButton(), edit = new JButton(), tpInstall = new JButton();
+	private JButton launch = new JButton(), edit = new JButton();
 
 	private static String[] dropdown_ = {"Select Profile", "Create Profile"};
-	private static JComboBox users, tpInstallLocation;
+	private static JComboBox users;
 	private static LaunchFrame instance = null;
 	private static String version = "1.2.1";
 
@@ -102,7 +107,6 @@ public class LaunchFrame extends JFrame {
 	protected static UserManager userManager;
 
 	public static ModpacksPane modPacksPane;
-	public TexturepackPane tpPane;
 	public OptionsPane optionsPane;
 
 	public static int buildNumber = 121;
@@ -125,8 +129,8 @@ public class LaunchFrame extends JFrame {
 	 * @param args - CLI arguments
 	 */
 	public static void main(String[] args) {
-		if(new File(Settings.getSettings().getInstallPath(), "FTBLauncherLog.txt").exists()) {
-			new File(Settings.getSettings().getInstallPath(), "FTBLauncherLog.txt").delete();
+		if(new File(Settings.getSettings().getInstallPath(), "LauncherLog.txt").exists()) {
+			new File(Settings.getSettings().getInstallPath(), "LauncherLog.txt").delete();
 		}
 
 		if(new File(Settings.getSettings().getInstallPath(), "MinecraftLog.txt").exists()) {
@@ -195,12 +199,11 @@ public class LaunchFrame extends JFrame {
 					}
 				});
 
+				//load the mod packs
 				ModPack.addListener(frame.modPacksPane);
+
+				//TODO: load dynamic xml locations
 				ModPack.loadXml(getXmls());
-
-				TexturePack.addListener(frame.tpPane);
-//				TexturePack.loadAll();
-
 			}
 		});
 	}
@@ -233,7 +236,6 @@ public class LaunchFrame extends JFrame {
 		setContentPane(panel);
 
 		//Footer
-		
 		//ftb logo
 		footerLogo.setBounds(20, 20, 42, 42);
 
@@ -296,51 +298,22 @@ public class LaunchFrame extends JFrame {
 			}
 		});
 
-		
-		//texture pack installing
-		tpInstall.setBounds(650, 20, 160, 30);
-		tpInstall.setText(I18N.getLocaleString("INSTALL_TEXTUREPACK"));
-		tpInstall.setVisible(false);
-		tpInstall.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if(tpPane.texturePackPanels.size() > 0 && getSelectedTexturePackIndex() >= 0) {
-					TextureManager man = new TextureManager(new JFrame(), true);
-					man.setVisible(true);
-				}
-			}
-		});
-
-		tpInstallLocation = new JComboBox();
-		tpInstallLocation.setBounds(480, 20, 160, 30);
-		tpInstallLocation.setToolTipText("Install to...");
-		tpInstallLocation.setVisible(false);
-
-		tpInstallLocLbl.setText("Install to...");
-		tpInstallLocLbl.setBounds(480, 20, 80, 30);
-		tpInstallLocLbl.setVisible(false);
-
 		footer.add(edit);
 		footer.add(users);
 		footer.add(footerLogo);
 		footer.add(launch);
-		footer.add(tpInstall);
-		footer.add(tpInstallLocation);
 
 		modPacksPane = new ModpacksPane();
-		tpPane = new TexturepackPane();
 		optionsPane = new OptionsPane(Settings.getSettings());
 
 		getRootPane().setDefaultButton(launch);
 		updateLocale();
 
-		
+
 		tabbedPane.add(modPacksPane, 0);
-		tabbedPane.add(tpPane, 1);
-		tabbedPane.add(optionsPane, 2);
+		tabbedPane.add(optionsPane, 1);
 		tabbedPane.setIconAt(0, new ImageIcon(this.getClass().getResource("/image/tabs/modpacks.png")));
-		tabbedPane.setIconAt(1, new ImageIcon(this.getClass().getResource("/image/tabs/texturepacks.png")));
-		tabbedPane.setIconAt(2, new ImageIcon(this.getClass().getResource("/image/tabs/options.png")));
+		tabbedPane.setIconAt(1, new ImageIcon(this.getClass().getResource("/image/tabs/options.png")));
 		tabbedPane.setSelectedIndex(tab);
 
 		tabbedPane.addChangeListener(new ChangeListener() {
@@ -373,14 +346,11 @@ public class LaunchFrame extends JFrame {
 
 		tabbedPane.setEnabledAt(0, false);
 		tabbedPane.setEnabledAt(1, false);
-		tabbedPane.setEnabledAt(2, false);
 		tabbedPane.getSelectedComponent().setEnabled(false);
 
 		launch.setEnabled(false);
 		users.setEnabled(false);
 		edit.setEnabled(false);
-		tpInstall.setEnabled(false);
-		tpInstallLocation.setEnabled(false);
 
 		LoginWorker loginWorker = new LoginWorker(username, password) {
 			@Override
@@ -442,9 +412,6 @@ public class LaunchFrame extends JFrame {
 			enableObjects();
 			return;
 		}
-		try {
-			TextureManager.updateTextures();
-		} catch (Exception e1) { }
 		MinecraftVersionDetector mvd = new MinecraftVersionDetector();
 		if(!new File(installPath, pack.getDir() + "/minecraft/bin/minecraft.jar").exists() || mvd.shouldUpdate(installPath + "/" + pack.getDir() + "/minecraft")) {
 			final ProgressMonitor progMonitor = new ProgressMonitor(this, "Downloading minecraft...", "", 0, 100);
@@ -581,20 +548,6 @@ public class LaunchFrame extends JFrame {
 	}
 
 	/**
-	 * updates the tpInstall to the available ones
-	 * @param locations - the available locations to install the tp to
-	 */
-	public static void updateTpInstallLocs(String[] locations) {
-		tpInstallLocation.removeAllItems();
-		for(String location : locations) {
-			if(!location.isEmpty()) {
-				tpInstallLocation.addItem(ModPack.getPack(location.trim()).getName());
-			}
-		}
-		tpInstallLocation.setSelectedItem(ModPack.getSelectedPack().getName());
-	}
-
-	/**
 	 * @param first - First array
 	 * @param rest - Rest of the arrays
 	 * @return - Outputs concatenated arrays
@@ -621,20 +574,6 @@ public class LaunchFrame extends JFrame {
 	}
 
 	/**
-	 * @return - Outputs selected texturepack index
-	 */
-	public static int getSelectedTexturePackIndex() {
-		return instance.tpPane.getSelectedTexturePackIndex();
-	}
-
-	/**
-	 * @return - Outputs selected texturepack install index
-	 */
-	public static int getSelectedTPInstallIndex() {
-		return instance.tpInstallLocation.getSelectedIndex();
-	}
-
-	/**
 	 * @return - Outputs LaunchFrame instance
 	 */
 	public static LaunchFrame getInstance() {
@@ -647,14 +586,10 @@ public class LaunchFrame extends JFrame {
 	private void enableObjects() {
 		tabbedPane.setEnabledAt(0, true);
 		tabbedPane.setEnabledAt(1, true);
-		tabbedPane.setEnabledAt(2, true);
 		tabbedPane.getSelectedComponent().setEnabled(true);
 		updateFooter();
-		tpInstall.setEnabled(true);
 		launch.setEnabled(true);
 		users.setEnabled(true);
-		tpInstallLocation.setEnabled(true);
-		TextureManager.updating = false;
 	}
 
 	/**
@@ -685,29 +620,15 @@ public class LaunchFrame extends JFrame {
 	}
 
 	/**
-	 * disables the footer buttons active when the texture pack tab is selected
-	 */
-	public void disableTextureButtons() {
-		tpInstall.setVisible(false);
-		tpInstallLocation.setVisible(false);
-	}
-
-	/**
 	 * update the footer to the correct buttons for active tab
 	 */
 	public void updateFooter() {
 		switch(currentPane) {
-		case TEXTURE:
-			tpInstall.setVisible(true);
-			tpInstallLocation.setVisible(true);
-			disableMainButtons();
-			break;
 		default:
 			launch.setVisible(true);
 			edit.setEnabled(users.getSelectedIndex() > 1);
 			edit.setVisible(true);
 			users.setVisible(true);
-			disableTextureButtons();
 			break;
 		}
 	}
@@ -719,42 +640,55 @@ public class LaunchFrame extends JFrame {
 	public void updateLocale() {
 		if(I18N.currentLocale == Locale.deDE) {
 			edit.setBounds(420, 20, 120, 30);
-			tpInstallLocation.setBounds(420, 20, 190, 30);
-			tpInstall.setBounds(620, 20, 190, 30);
 		} else {
 			edit.setBounds(480, 20, 60, 30);
-			tpInstallLocation.setBounds(480, 20, 160, 30);
-			tpInstall.setBounds(650, 20, 160, 30);
 		}
 		launch.setText(I18N.getLocaleString("LAUNCH_BUTTON"));
 		edit.setText(I18N.getLocaleString("EDIT_BUTTON"));
-		tpInstall.setText(I18N.getLocaleString("INSTALL_TEXTUREPACK"));
 		dropdown_[0] = I18N.getLocaleString("PROFILE_SELECT");
 		dropdown_[1] = I18N.getLocaleString("PROFILE_CREATE");
 		writeUsers((String)users.getSelectedItem());
 		optionsPane.updateLocale();
 		modPacksPane.updateLocale();
-		tpPane.updateLocale();
 	}
 
 	private static ArrayList<String> getXmls() {
-		ArrayList<String> s = Settings.getSettings().getPrivatePacks();
-		if(s == null) {
-			s = new ArrayList<String>();
+		//load the urls
+		InputStream xmlStream = null;
+		ArrayList<String> s = new ArrayList<String>();
+		try {
+			xmlStream = new URL("http://soartex.net/launcher/modpacklinks.xml").openStream();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		for(int i = 0; i < s.size(); i++) {
-			if(s.get(i).isEmpty()) {
-				s.remove(i);
-				i--;
-			} else {
-				String temp = s.get(i);
-				if(!temp.endsWith(".xml")) {
-					s.remove(i);
-					s.add(i, temp + ".xml");
+
+		//read in the file
+		if(xmlStream != null) {
+			Document doc = null;
+			try {
+				doc = AppUtils.getXML(xmlStream);
+			} catch (Exception e) {
+				Logger.logError("Exception reading modpack file", e);
+			}
+			if(doc == null) {
+				Logger.logError("Error: could not load modpack data!");
+			}
+			else{
+				NodeList modPacks = doc.getElementsByTagName("modpack");
+				for(int i = 0; i < modPacks.getLength(); i++) {
+					Node modPackNode = modPacks.item(i);
+					NamedNodeMap modPackAttr = modPackNode.getAttributes();
+					try {
+						s.add(0, modPackAttr.getNamedItem("url").getTextContent());
+					} catch (Exception e) {
+						Logger.logError(e.getMessage(), e);
+					}
 				}
 			}
+			try {
+				xmlStream.close();
+			} catch (IOException e) { }
 		}
-		s.add(0, "modpacks.xml");
 		return s;
 	}
 

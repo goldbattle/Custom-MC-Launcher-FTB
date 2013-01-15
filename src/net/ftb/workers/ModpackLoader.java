@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import net.ftb.data.ModPack;
-import net.ftb.data.TexturePack;
 import net.ftb.gui.panes.ModpacksPane;
 import net.ftb.log.Logger;
 import net.ftb.util.AppUtils;
@@ -46,12 +45,13 @@ public class ModpackLoader extends Thread {
 
 	@Override
 	public void run() {
+		
+		//TODO: Add the dynamic location
 		for(String xmlFile : xmlFiles) {
-			boolean privatePack = !xmlFile.equalsIgnoreCase("modpacks.xml");
-			File modPackFile = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + xmlFile);
+			File modPackFile = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + xmlFile.substring( xmlFile.lastIndexOf("/")+1));
 			try {
 				modPackFile.getParentFile().mkdirs();
-				DownloadUtils.downloadToFile(new URL("http://" + "files.soartex.net" + "/ftb/" +xmlFile), modPackFile);
+				DownloadUtils.downloadToFile(new URL(xmlFile), modPackFile);
 			} catch (IOException e) {
 				Logger.logWarn("Failed to load modpacks, loading from backup", e);
 			}
@@ -64,7 +64,7 @@ public class ModpackLoader extends Thread {
 			}
 			if(modPackStream == null) {
 				try {
-					modPackStream = new URL("http://" + "files.soartex.net" + "/ftb/" + xmlFile).openStream();
+					modPackStream = new URL(xmlFile).openStream();
 				} catch (IOException e) {
 					Logger.logError("Completely unable to download the modpack file - check your connection", e);
 				}
@@ -99,7 +99,7 @@ public class ModpackLoader extends Thread {
 								modPackAttr.getNamedItem("description") != null ? modPackAttr.getNamedItem("description").getTextContent() : "",
 								modPackAttr.getNamedItem("mods") != null ? modPackAttr.getNamedItem("mods").getTextContent() : "", 
 								modPackAttr.getNamedItem("oldVersions") != null ? modPackAttr.getNamedItem("oldVersions").getTextContent() : "",
-								modPackAttr.getNamedItem("animation") != null ? modPackAttr.getNamedItem("animation").getTextContent() : "", counter, privatePack, xmlFile));
+								modPackAttr.getNamedItem("animation") != null ? modPackAttr.getNamedItem("animation").getTextContent() : "", counter, false, xmlFile));
 						counter++;
 					} catch (Exception e) {
 						Logger.logError(e.getMessage(), e);
@@ -109,10 +109,6 @@ public class ModpackLoader extends Thread {
 					modPackStream.close();
 				} catch (IOException e) { }
 			}
-		}
-		if(!ModpacksPane.loaded) {
-			ModpacksPane.loaded = true;
-			TexturePack.loadAll();
 		}
 	}
 }
