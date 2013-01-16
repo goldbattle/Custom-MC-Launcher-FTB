@@ -119,9 +119,15 @@ public class ModManager extends JDialog {
 			try{
 				new File(baseDynamic, modPackName).createNewFile();
 
-				//download file
-				downloadUrl(baseDynamic.getPath() + sep + modPackName, pack.getUrl());			
-
+				//download file				
+				if(pack.getUrl().indexOf("*")!=-1 && pack.getUrl().lastIndexOf("*") != -1){
+					Logger.logInfo(pack.getUrl().substring(0, pack.getUrl().indexOf("*")) + curVersion + pack.getUrl().substring(pack.getUrl().lastIndexOf("*")+1));
+					downloadUrl(baseDynamic.getPath() + sep + modPackName, pack.getUrl().substring(0, pack.getUrl().indexOf("*")) + curVersion + pack.getUrl().substring(pack.getUrl().lastIndexOf("*")+1));	
+				}
+				else{
+					downloadUrl(baseDynamic.getPath() + sep + modPackName, pack.getUrl());
+				}
+				
 				try{
 					//startup animation download
 					String animation = pack.getAnimation();

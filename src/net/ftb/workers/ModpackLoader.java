@@ -96,7 +96,7 @@ public class ModpackLoader extends Thread {
 								modPackAttr.getNamedItem("image_url") != null ? modPackAttr.getNamedItem("image_url").getTextContent() : "",
 								modPackAttr.getNamedItem("dir").getTextContent(),
 								modPackAttr.getNamedItem("mcVersion").getTextContent(), 
-								modPackAttr.getNamedItem("description") != null ? modPackAttr.getNamedItem("description").getTextContent() : "",
+								modPackAttr.getNamedItem("description") != null ? modPackAttr.getNamedItem("description").getTextContent() : "No Description",
 								modPackAttr.getNamedItem("mods") != null ? modPackAttr.getNamedItem("mods").getTextContent() : "", 
 								modPackAttr.getNamedItem("oldVersions") != null ? modPackAttr.getNamedItem("oldVersions").getTextContent() : "",
 								modPackAttr.getNamedItem("animation") != null ? modPackAttr.getNamedItem("animation").getTextContent() : "", counter, false, xmlFile));

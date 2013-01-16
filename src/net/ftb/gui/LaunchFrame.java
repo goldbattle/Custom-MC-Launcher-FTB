@@ -661,7 +661,7 @@ public class LaunchFrame extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		//read in the file
 		if(xmlStream != null) {
 			Document doc = null;

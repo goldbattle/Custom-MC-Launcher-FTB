@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -36,25 +35,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import net.ftb.data.LauncherStyle;
 import net.ftb.data.ModPack;
 import net.ftb.data.Settings;
 import net.ftb.data.events.ModPackListener;
 import net.ftb.gui.LaunchFrame;
 import net.ftb.gui.dialogs.EditModPackDialog;
-import net.ftb.gui.dialogs.ModPackFilterDialog;
-import net.ftb.gui.dialogs.PrivatePackDialog;
 import net.ftb.gui.dialogs.SearchDialog;
 import net.ftb.locale.I18N;
-import net.ftb.locale.I18N.Locale;
 import net.ftb.log.Logger;
-import net.ftb.util.DownloadUtils;
 import net.ftb.util.OSUtils;
 
 
@@ -65,10 +58,8 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	public static ArrayList<JPanel> packPanels;
 	private static JScrollPane packsScroll;
 
-	private static JLabel typeLbl;
-	private JButton filter, editModPack;
+	private JButton editModPack;
 
-	private JButton privatePack;
 	private static JComboBox version;
 	private static int selectedPack = 0;
 	private static boolean modPacksAdded = false;
@@ -90,12 +81,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 		packPanels = new ArrayList<JPanel>();
 
-		// TODO: Set loading animation while we wait
-		//		try {
-		//			loadingImage = new JLabel(new ImageIcon(new URL("http://cdn.nirmaltv.com/images/generatorphp-thumb.gif")));
-		//		} catch (MalformedURLException e1) { e1.printStackTrace(); }
-		//		loadingImage.setLocation(58, 36);
-
 		packs = new JPanel();
 		packs.setLayout(null);
 		packs.setOpaque(false);
@@ -105,36 +90,8 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		p.setBounds(0, 0, 420, 55);
 		p.setLayout(null);
 
-		filter = new JButton(I18N.getLocaleString("FILTER_SETTINGS"));
-		filter.setBounds(5, 5, 105, 25);
-		filter.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(loaded) {
-					ModPackFilterDialog filterDia = new ModPackFilterDialog(instance);
-					filterDia.setVisible(true);
-				}
-			}
-		});
-		add(filter);
-
-		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
-		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
-
-		String typeLblText = "<html><body>";
-		typeLblText += "<strong><font color=rgb\"(" + filterTextColor + ")\">Filter: </strong></font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + origin + "</font>";
-		typeLblText += "<font color=rgb\"(" + filterTextColor + ")\"> / </font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + mcVersion + "</font>";
-		typeLblText += "</body></html>";
-
-		typeLbl = new JLabel(typeLblText);
-		typeLbl.setBounds(115, 5, 175, 25);
-		typeLbl.setHorizontalAlignment(SwingConstants.CENTER);
-		add(typeLbl);
-
 		editModPack = new JButton(I18N.getLocaleString("MODS_EDIT_PACK"));
-		editModPack.setBounds(300, 5, 110, 25);
+		editModPack.setBounds(5, 5, 110, 25);
 		editModPack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -184,7 +141,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(packInfo);
 
 		infoScroll = new JScrollPane();
-		infoScroll.setBounds(410, 25, 430, 290);
+		infoScroll.setBounds(410, 0, 430, 315);
 		infoScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		infoScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		infoScroll.setWheelScrollingEnabled(true);
@@ -193,7 +150,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(infoScroll);
 
 		version = new JComboBox(new String[]{});
-		version.setBounds(420, 5, 130, 25);
+		version.setBounds(115, 5, 130, 25);
 		version.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -203,18 +160,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		});
 		version.setToolTipText("Modpack Versions");
 		add(version);
-
-		privatePack = new JButton("Private Packs");
-		privatePack.setBounds(560, 5, 120, 25);
-		privatePack.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PrivatePackDialog ap = new PrivatePackDialog();
-				ap.setVisible(true);
-			}
-		});
-
-		add(privatePack);
 	}
 
 	@Override public void onVisible() { }
@@ -339,35 +284,13 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		return modPacksAdded ? getIndex() : -1;
 	}
 
-	public static void updateFilter() {
-		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
-		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
-		String typeLblText = "<html><body>";
-		typeLblText += "<strong><font color=rgb\"(" + filterTextColor + ")\">Filter: </strong></font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + origin + "</font>";
-		typeLblText += "<font color=rgb\"(" + filterTextColor + ")\"> / </font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + mcVersion + "</font>";
-		typeLblText += "</body></html>";
-
-		typeLbl.setText(typeLblText);
-		sortPacks();
-		LaunchFrame.getInstance().updateFooter();
-	}
 
 	private static int getIndex() {
 		return (!currentPacks.isEmpty()) ? currentPacks.get(selectedPack).getIndex() : selectedPack;
 	}
 
 	public void updateLocale() {
-		filter.setText(I18N.getLocaleString("FILTER_SETTINGS"));
 		editModPack.setText(I18N.getLocaleString("MODS_EDIT_PACK"));
-		if(I18N.currentLocale == Locale.deDE) {
-			editModPack.setBounds(290, 5, 120, 25);
-			typeLbl.setBounds(115, 5, 165, 25);
-		} else {
-			editModPack.setBounds(300, 5, 110, 25);
-			typeLbl.setBounds(115, 5, 175, 25);
-		}
 	}
 
 	private static boolean avaliabilityCheck(ModPack pack) {
