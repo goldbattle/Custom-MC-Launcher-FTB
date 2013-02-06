@@ -70,9 +70,9 @@ public class OSUtils {
 		case WINDOWS:
 			return System.getenv("APPDATA") + "/.soartexlauncher/";
 		case MACOSX:
-			return cachedUserHome + "/Library/Application Support/.soartexlauncher/";
+			return cachedUserHome + "/Library/Application Support/soartexlauncher/";
 		case UNIX:
-			return cachedUserHome + "/.soartexlauncher/";
+			return cachedUserHome + "/soartexlauncher/";
 		default:
 			return getDefInstallPath() + "/temp/";
 		}
